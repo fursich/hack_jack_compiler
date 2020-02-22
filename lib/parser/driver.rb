@@ -1,3 +1,4 @@
+require_relative 'tokenizer'
 require_relative 'errors'
 
 module JackCompiler
