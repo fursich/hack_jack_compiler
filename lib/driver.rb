@@ -8,7 +8,7 @@ require 'forwardable'
 require_relative 'utils/fileio'
 require_relative 'utils/inflector'
 require_relative 'errors'
-require_relative 'core'
+require_relative 'parser/driver'
 
 module JackCompiler
   class Driver
