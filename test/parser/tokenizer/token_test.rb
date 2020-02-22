@@ -3,99 +3,111 @@ require 'test_helper'
 module JackCompiler
   module Parser
     module TokenTestHelper
-      def self.token(token, source_location: "123", &block)
-        token = JackCompiler::Parser::Token.new(token, source_location: source_location)
-
-        block.call token
-      end
-
-      def self.classify!(token, source_location: "123", &block)
-        token = JackCompiler::Parser::Token.new(token, source_location: source_location)
-        token.classify!
+      def self.initialize_with_input(type, value, source_location: "123", &block)
+        token = JackCompiler::Parser::Token.new(type, value, source_location: source_location)
 
         block.call token
       end
     end
   
     class TestTokenizerToken < Minitest::Test
-      def test_blank_command
-        TokenTestHelper.token(
-          "   ",
+      def test_nil_type
+        TokenTestHelper.initialize_with_input(
+          nil, '   '
         ) do |token|
-          assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.classify! }
-        end
-      end
-  
-      def test_comments
-        TokenTestHelper.token(
-          " // comment",
-        ) do |token|
-          assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.classify! }
+          assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.validate! }
         end
       end
   
       def test_undefined_token_types
-        tokens = %w[0foo "abc xyz" Foo.rb bar$baz αβ -10000 # \ ()]
-        tokens.each do |token|
-        TokenTestHelper.token(
-            token,
+        TokenTestHelper.initialize_with_input(
+          :undefined, '1_foo'
+        ) do |token|
+          assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.validate! }
+        end
+      end
+
+      def test_illegal_integer_value
+        illegal_integers = [-1, 32768]
+        illegal_integers.each do |integer|
+          TokenTestHelper.initialize_with_input(
+            :integer, integer
           ) do |token|
-            assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.classify! }
+            assert_raises(JackCompiler::Parser::IllegalIntegerValue) { token.validate! }
           end
         end
       end
   
-      def test_keywords
-        keywords = %w[class constructor function method field static var int char boolean void true false null this let do if else while return]
-        keywords.each do |keyword|
-        TokenTestHelper.classify!(
-            keyword,
+      def test_getters
+        classified_tokens = {
+          keyword:    :return,
+          symbol:     :'{',
+          identifier: :Foo_bar_1,
+          integer:    123,
+          string:     '文字列　表現',
+        }
+
+        classified_tokens.each do |type, value|
+          TokenTestHelper.initialize_with_input(
+            type, value, source_location: '54321'
           ) do |token|
-            assert_equal :keyword, token.type
+            assert_equal type,    token.type
+            assert_equal value,   token.value
+            assert_equal '54321', token.source_location
           end
         end
       end
   
-      def test_symbol
-        symbols = %w[{ } ( ) [ ] . , ; + - * / & | < > = ~]
-        symbols.each do |symbol|
-        TokenTestHelper.classify!(
-            symbol,
+      def test_type_query_methods
+        query_methods = {
+          keyword:    :keyword?,
+          symbol:     :symbol?,
+          identifier: :identifier?,
+          integer:    :integer?,
+          string:     :string?,
+        }
+
+        classified_tokens = {
+          keyword:    :return,
+          symbol:     :'{',
+          identifier: :Foo_bar_1,
+          integer:    123,
+          string:     '文字列　表現',
+        }
+
+        classified_tokens.each do |type, value|
+        TokenTestHelper.initialize_with_input(
+            type, value
           ) do |token|
-            assert_equal :symbol, token.type
+            query_methods.each do |typename, query|
+              if typename == type
+                assert token.public_send query
+              else
+                refute token.public_send query
+              end
+            end
           end
         end
       end
   
-      def test_identifiers
-        identifiers = %w[foo bar_baz FooBar_BAZ]
-        identifiers.each do |identifier|
-        TokenTestHelper.classify!(
-            identifier,
+      def test_valid_tokens
+        classified_tokens = {
+          keyword:                  :return,
+          symbol:                   :'{',
+          identifier:               :Foo_bar_1,
+          integer:                  123,
+          string:                   '文字列　表現',
+          space:                    '  ',
+          singleline_comment:       '//foo bar',
+          multiline_comment:        '/*',
+          multiline_comment_closer: 'foo bar*/',
+        }
+
+        classified_tokens.each do |type, value|
+          TokenTestHelper.initialize_with_input(
+            type, value
           ) do |token|
-            assert_equal :identifier, token.type
-          end
-        end
-      end
-  
-      def test_integers
-        integers = %w[1 123 8888888]
-        integers.each do |integer|
-        TokenTestHelper.classify!(
-            integer,
-          ) do |token|
-            assert_equal :int_const, token.type
-          end
-        end
-      end
-  
-      def test_strings
-        strings = %w["foo" "bar\ baz" "日本語による、文字表記や　文章・パラグラフ"]
-        strings.each do |string|
-        TokenTestHelper.classify!(
-            string,
-          ) do |token|
-            assert_equal :string_const, token.type
+            assert token.validate!
           end
         end
       end
