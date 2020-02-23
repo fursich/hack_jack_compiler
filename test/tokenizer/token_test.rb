@@ -1,10 +1,10 @@
 require 'test_helper'
 
 module JackCompiler
-  module Parser
+  module Tokenizer
     module TokenTestHelper
       def self.initialize_with_input(type, value, source_location: "123", &block)
-        token = JackCompiler::Parser::Token.new(type, value, source_location: source_location)
+        token = JackCompiler::Tokenizer::Token.new(type, value, source_location: source_location)
 
         block.call token
       end
@@ -15,7 +15,7 @@ module JackCompiler
         TokenTestHelper.initialize_with_input(
           nil, '   '
         ) do |token|
-          assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.validate! }
+          assert_raises(JackCompiler::UndefinedTokenPattern) { token.validate! }
         end
       end
   
@@ -23,7 +23,7 @@ module JackCompiler
         TokenTestHelper.initialize_with_input(
           :undefined, '1_foo'
         ) do |token|
-          assert_raises(JackCompiler::Parser::UndefinedTokenPattern) { token.validate! }
+          assert_raises(JackCompiler::UndefinedTokenPattern) { token.validate! }
         end
       end
 
@@ -33,7 +33,7 @@ module JackCompiler
           TokenTestHelper.initialize_with_input(
             :integer, integer
           ) do |token|
-            assert_raises(JackCompiler::Parser::IllegalIntegerValue) { token.validate! }
+            assert_raises(JackCompiler::IllegalIntegerValue) { token.validate! }
           end
         end
       end

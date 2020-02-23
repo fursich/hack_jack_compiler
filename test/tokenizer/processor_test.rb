@@ -1,24 +1,24 @@
 require 'test_helper'
 
 module JackCompiler
-  module Parser
-    module TokenizerTestHelper
+  module Tokenizer
+    module TokenizerProcessorTestHelper
       def self.tokenizer_with_input(raw_source, filename: 'filename.jack', &block)
         source = JackCompiler::Source.new(filename).tap { |source| source.store!(raw_source) }
-        tokenizer = JackCompiler::Parser::Tokenizer.new(source)
+        tokenizer = JackCompiler::Tokenizer::Processor.new(source)
 
         block.call tokenizer
       end
 
       def self.tokenize_with_input(text, filename: 'filename.jack', &block)
         source = JackCompiler::Source.new(filename).tap { |source| source.store!(text) }
-        tokenizer = JackCompiler::Parser::Tokenizer.new(source)
+        tokenizer = JackCompiler::Tokenizer::Processor.new(source)
 
         block.call tokenizer.tokenize!
       end
     end
   
-    class TestTokenizer < Minitest::Test
+    class TestTokenizerProcessor < Minitest::Test
       def raw_source
         <<~"RAW_SOURCE"
           // This file is part of www.nand2tetris.org
@@ -63,13 +63,13 @@ module JackCompiler
       end
 
       def test_tokens
-        TokenizerTestHelper.tokenizer_with_input(
+        TokenizerProcessorTestHelper.tokenizer_with_input(
           raw_source
         ) do |tokenizer|
           assert_empty tokenizer.tokens
           tokenizer.tokenize!
 
-          assert_instance_of JackCompiler::Parser::Token, tokenizer.tokens.first
+          assert_instance_of JackCompiler::Tokenizer::Token, tokenizer.tokens.first
           assert_equal :keyword, tokenizer.tokens.first.type
           assert_equal :class , tokenizer.tokens.first.value
           assert_equal 140, tokenizer.tokens.count

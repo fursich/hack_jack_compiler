@@ -1,9 +1,9 @@
-require_relative 'tokenizer/token'
-require_relative 'tokenizer/token_classifier'
+require_relative 'token'
+require_relative 'token_classifier'
 
 module JackCompiler
-  module Parser
-    class Tokenizer
+  module Tokenizer
+    class Processor
       attr_reader :tokens, :source
 
       def initialize(source)
@@ -36,7 +36,7 @@ module JackCompiler
           type, value = TokenClassifier.match raw_text
         end
 
-        token = Token.new(type, value, source_location: source_location)
+        Token.new(type, value, source_location: source_location)
       end
     end
   end

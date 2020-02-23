@@ -1,5 +1,5 @@
 module JackCompiler
-  module Parser
+  module Tokenizer
     class Token
       MAX_INT = 32767
       MIN_INT = 0
@@ -50,7 +50,19 @@ module JackCompiler
         space? || comment?
       end
 
+      def is_a?(token_type)
+        element.to_s == token_type.to_s
+      end
+
       private
+
+      def element
+        if keyword?
+          value
+        else
+          type
+        end
+      end
 
       def valid_type?
         keyword? || symbol? || identifier? || integer? || string? || comment? || space?

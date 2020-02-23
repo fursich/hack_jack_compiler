@@ -7,7 +7,10 @@ require 'forwardable'
 
 require_relative 'utils/fileio'
 require_relative 'utils/inflector'
+require_relative 'utils/source'
+
 require_relative 'errors'
+require_relative 'tokenizer/processor'
 require_relative 'parser/driver'
 
 module JackCompiler

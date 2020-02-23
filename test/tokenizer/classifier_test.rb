@@ -1,15 +1,15 @@
 require 'test_helper'
 
 module JackCompiler
-  module Parser
+  module Tokenizer
     module TokenClassifierTestHelper
       def self.match(token, &block)
-        token_type, value = JackCompiler::Parser::TokenClassifier.match(token)
+        token_type, value = JackCompiler::Tokenizer::TokenClassifier.match(token)
         block.call token_type, value
       end
 
       def self.match_multiline_comment(token, &block)
-        token_type, value = JackCompiler::Parser::TokenClassifier.match_multiline_comment(token)
+        token_type, value = JackCompiler::Tokenizer::TokenClassifier.match_multiline_comment(token)
         block.call token_type, value
       end
     end
