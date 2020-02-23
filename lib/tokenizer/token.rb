@@ -4,7 +4,7 @@ module JackCompiler
       MAX_INT = 32767
       MIN_INT = 0
       attr_reader :type, :value, :source_location
-  
+
       def initialize(type, value, source_location:)
         @type            = type
         @value           = value
@@ -45,19 +45,26 @@ module JackCompiler
       def space?
         @type == :space
       end
-      
+
       def ignorable?
         space? || comment?
       end
 
-      def is_a?(token_type)
-        element.to_s == token_type.to_s
+      def is?(token_type)
+        element.to_sym == token_type.to_s.to_sym
+      end
+
+      def to_s
+        type_str = sprintf("%-11s", type.upcase)
+        value_str = sprintf("%-15.15s", "#{value}") + (value.size > 15 ? '..' : '  ')
+
+        "type: #{type_str} value: #{value_str} : #{source_location}"
       end
 
       private
 
       def element
-        if keyword?
+        if keyword? || symbol?
           value
         else
           type

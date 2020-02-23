@@ -9,7 +9,7 @@ module JackCompiler
         block.call token
       end
     end
-  
+
     class TestTokenizerToken < Minitest::Test
       def test_nil_type
         TokenTestHelper.initialize_with_input(
@@ -18,7 +18,7 @@ module JackCompiler
           assert_raises(JackCompiler::UndefinedTokenPattern) { token.validate! }
         end
       end
-  
+
       def test_undefined_token_types
         TokenTestHelper.initialize_with_input(
           :undefined, '1_foo'
@@ -37,7 +37,7 @@ module JackCompiler
           end
         end
       end
-  
+
       def test_getters
         classified_tokens = {
           keyword:    :return,
@@ -57,7 +57,7 @@ module JackCompiler
           end
         end
       end
-  
+
       def test_type_query_methods
         query_methods = {
           keyword:    :keyword?,
@@ -89,7 +89,7 @@ module JackCompiler
           end
         end
       end
-  
+
       def test_valid_tokens
         classified_tokens = {
           keyword:                  :return,
@@ -108,6 +108,37 @@ module JackCompiler
             type, value
           ) do |token|
             assert token.validate!
+          end
+        end
+      end
+
+      def test_is
+        reserved_tokens = {
+          keyword:    :return,
+          symbol:     :'{',
+        }
+
+        general_tokens = {
+          identifier: :Foo_bar_1,
+          integer:    123,
+          string:     '文字列　表現',
+        }
+
+        reserved_tokens.each do |type, value|
+          TokenTestHelper.initialize_with_input(
+            type, value
+          ) do |token|
+            assert token.is? value
+            refute token.is? type
+          end
+        end
+
+        general_tokens.each do |type, value|
+          TokenTestHelper.initialize_with_input(
+            type, value
+          ) do |token|
+            assert token.is? type
+            refute token.is? value
           end
         end
       end

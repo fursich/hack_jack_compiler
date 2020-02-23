@@ -23,6 +23,10 @@ module JackCompiler
         end
       end
 
+      def print
+        puts @tokens.map(&:to_s).join("\n")
+      end
+
       private
 
       def delete!(element, from:)
