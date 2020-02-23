@@ -5,4 +5,5 @@ module JackCompiler
   class ParseError              < JackCompiler::Error; end
   class UndefinedTokenPattern   < ParseError; end
   class IllegalIntegerValue     < ParseError; end
+  class SyntaxError             < ParseError; end
 end

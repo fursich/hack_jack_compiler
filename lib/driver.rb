@@ -11,7 +11,7 @@ require_relative 'utils/source'
 
 require_relative 'errors'
 require_relative 'tokenizer/processor'
-require_relative 'parser/driver'
+require_relative 'parser/processor'
 
 module JackCompiler
   class Driver
