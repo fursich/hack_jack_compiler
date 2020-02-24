@@ -51,7 +51,7 @@ module JackCompiler
       def parse_subroutine_dec
         with_context(:subroutineDec) do
           expect!(:constructor, :function, :method)
-          accept(:void) || type
+          accept(:void) || parse_type
           expect!(:identifier)
           expect!(:'(')
           parse_parameter_list
@@ -65,6 +65,7 @@ module JackCompiler
           if try { parse_type }
             expect!(:identifier)
             while accept(:',')
+              parse_type
               expect!(:identifier)
             end
           end
@@ -236,7 +237,7 @@ module JackCompiler
       def print
         return unless ast
 
-        ast.prettify.join("\n")
+        puts ast.prettify.join("\n")
       end
 
       def to_xml
@@ -265,7 +266,7 @@ module JackCompiler
         unless accept_any(*elements)
           caller_location = caller.join("\n")
 
-          raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting #{elements}: #{fetch_source_location}\n\n#{caller_location}"
+          raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting #{elements}: \n\n  #{fetch_source_location}\n\n#{caller_location}"
         end
         true
       end
@@ -297,8 +298,8 @@ module JackCompiler
 
       def fetch_source_location
         while current_token
-          location = try { current_token.source_location }
-          return location if location
+          location = nil
+          return location if try { location = current_token.source_location }
           @tokens.pop
         end
 

@@ -24,7 +24,7 @@ module JackCompiler
         end
 
         def prettify
-          ["└ #{type}", *children.flat_map(&:prettify).map { |child| "     #{child}" } ]
+          ["└ #{type}", *children.flat_map(&:prettify).map { |child| "  #{child}" } ]
         end
 
         def to_s

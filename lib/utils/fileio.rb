@@ -1,4 +1,4 @@
-module VMTranslator
+module JackCompiler
   class FileIO
     def initialize(filename)
       @filename = filename
@@ -7,7 +7,7 @@ module VMTranslator
     def read
       begin
         File.open(@filename) do |file|
-          file.read
+          file.read.gsub!(/\R/, "\n")
         end
       rescue => e
         raise FileError, "#{e.class} #{e.message}\n an error occured while reading the source file.\n"
