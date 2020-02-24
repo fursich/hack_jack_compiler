@@ -26,6 +26,10 @@ module JackCompiler
         def prettify
           ["└ #{type}", *children.flat_map(&:prettify).map { |child| "     #{child}" } ]
         end
+
+        def to_s
+          "Variable Node: #{type}, children: [#{children.flat_map(&:type).join(%[, ])}]"
+        end
       end
 
       class Terminal < Base
@@ -38,11 +42,36 @@ module JackCompiler
         end
 
         def to_xml
-          "<#{type}> #{value} </#{type}>"
+          "<#{type_for_xml}> #{value_for_xml} </#{type_for_xml}>"
         end
 
         def prettify
           "└ *#{type} <#{value}>"
+        end
+
+        def to_s
+          "Terminal Node: #{type} <#{value}>"
+        end
+
+        private
+
+        def value_for_xml
+          if type == :string
+            value.to_s.gsub(/\A"(.+)"\z/, '\1').encode(xml: :text)
+          else
+            value.to_s.encode(xml: :text)
+          end
+        end
+
+        def type_for_xml
+          case type
+          when :string
+            :stringConstant
+          when :integer
+            :integerConstant
+          else
+            type
+          end
         end
       end
     end

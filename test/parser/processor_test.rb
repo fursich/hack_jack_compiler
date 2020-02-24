@@ -309,10 +309,8 @@ module JackCompiler
             </subroutineDec>
             <symbol> } </symbol>
           </class>
-
         XML_OUTPUT
       end
-
     end
   end
 end

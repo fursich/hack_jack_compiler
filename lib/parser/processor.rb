@@ -242,7 +242,7 @@ module JackCompiler
       def to_xml
         return unless ast
 
-        ast.to_xml.join("\n")
+        ast.to_xml.join("\n") + "\n"
       end
 
       private
