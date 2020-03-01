@@ -2,6 +2,8 @@ module JackCompiler
   module Parser
     module Node
       class Base
+        attr_accessor :parent
+
         def initialize(type)
           @type = type
         end
@@ -19,16 +21,8 @@ module JackCompiler
           @children = []
         end
 
-        def to_xml
-          ["<#{type}>", *children.flat_map(&:to_xml).map { |child| "  #{child}" }, "</#{type}>"]
-        end
-
-        def prettify
-          ["└ #{type}", *children.flat_map(&:prettify).map { |child| "  #{child}" } ]
-        end
-
-        def to_s
-          "Variable Node: #{type}, children: [#{children.flat_map(&:type).join(%[, ])}]"
+        def accept(visitor)
+          visitor.visit_variable(self)
         end
       end
 
@@ -41,37 +35,8 @@ module JackCompiler
           @source_location = source_location
         end
 
-        def to_xml
-          "<#{type_for_xml}> #{value_for_xml} </#{type_for_xml}>"
-        end
-
-        def prettify
-          "└ *#{type} <#{value}>"
-        end
-
-        def to_s
-          "Terminal Node: #{type} <#{value}>"
-        end
-
-        private
-
-        def value_for_xml
-          if type == :string
-            value.to_s.gsub(/\A"(.+)"\z/, '\1').encode(xml: :text)
-          else
-            value.to_s.encode(xml: :text)
-          end
-        end
-
-        def type_for_xml
-          case type
-          when :string
-            :stringConstant
-          when :integer
-            :integerConstant
-          else
-            type
-          end
+        def accept(visitor)
+          visitor.visit_terminal(self)
         end
       end
     end

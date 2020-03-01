@@ -1,6 +1,9 @@
 require_relative 'context'
 require_relative 'token_container'
 require_relative 'node_builder'
+require_relative 'nodes/node'
+require_relative 'visitor/visitor'
+require_relative 'symbol_table'
 
 module JackCompiler
   module Parser
@@ -234,16 +237,20 @@ module JackCompiler
         end
       end
 
+      def connect_parents!
+        Parser::ParentConnector.visit ast
+      end
+
       def print
         return unless ast
 
-        puts ast.prettify.join("\n")
+        Parser::SimpleFormatter.visit(ast).join("\n") + "\n"
       end
 
       def to_xml
         return unless ast
 
-        ast.to_xml.join("\n") + "\n"
+        Parser::XMLFormatter.visit(ast).join("\n") + "\n"
       end
 
       private

@@ -1,5 +1,3 @@
-require_relative 'nodes/node'
-
 module JackCompiler
   module Parser
     module NodeBuilder
