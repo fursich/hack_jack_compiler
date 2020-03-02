@@ -2,9 +2,10 @@ module JackCompiler
   module Parser
     module Node
       class Base
-        attr_accessor :parent
+        attr_accessor :parent, :scope
 
         def initialize(type)
+          # TODO: type is not really a 'TYPE' per say - maybe (element) name?
           @type = type
         end
       end
@@ -23,6 +24,10 @@ module JackCompiler
 
         def accept(visitor)
           visitor.visit_variable(self)
+        end
+
+        def child(i)
+          children[i]
         end
       end
 
