@@ -238,19 +238,19 @@ module JackCompiler
       end
 
       def connect_parents!
-        Parser::ParentConnector.visit ast
+        Parser::ParentConnector.new.visit ast
       end
 
       def print
         return unless ast
 
-        Parser::SimpleFormatter.visit(ast).join("\n") + "\n"
+        Parser::SimpleFormatter.new.visit(ast).join("\n") + "\n"
       end
 
       def to_xml
         return unless ast
 
-        Parser::XMLFormatter.visit(ast).join("\n") + "\n"
+        Parser::XMLFormatter.new.visit(ast).join("\n") + "\n"
       end
 
       private
