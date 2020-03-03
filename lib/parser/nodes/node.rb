@@ -4,9 +4,8 @@ module JackCompiler
       class Base
         attr_accessor :parent, :scope
 
-        def initialize(type)
-          # TODO: type is not really a 'TYPE' per say - maybe (element) name?
-          @type = type
+        def initialize(kind)
+          @kind = kind
         end
       end
 
@@ -15,9 +14,9 @@ module JackCompiler
 
         def_delegators :@children, :push, :pop
         attr_accessor :children
-        attr_reader :type
+        attr_reader :kind
 
-        def initialize(type)
+        def initialize(kind)
           super
           @children = []
         end
@@ -32,10 +31,10 @@ module JackCompiler
       end
 
       class Terminal < Base
-        attr_reader :type, :value, :source_location
+        attr_reader :kind, :value, :source_location
 
-        def initialize(type, value, source_location:)
-          super(type)
+        def initialize(kind, value, source_location:)
+          super(kind)
           @value           = value
           @source_location = source_location
         end

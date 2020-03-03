@@ -70,7 +70,7 @@ module JackCompiler
           tokenizer.tokenize!
 
           assert_instance_of JackCompiler::Tokenizer::Token, tokenizer.tokens.first
-          assert_equal :keyword, tokenizer.tokens.first.type
+          assert_equal :keyword, tokenizer.tokens.first.kind
           assert_equal :class , tokenizer.tokens.first.value
           assert_equal 140, tokenizer.tokens.count
         end

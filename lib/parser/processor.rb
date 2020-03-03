@@ -295,8 +295,8 @@ module JackCompiler
         raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting #{method_names}: #{fetch_source_location}\n\n#{caller_location}"
       end
 
-      def with_context(type, &block)
-        node = NodeBuilder.build_variable(type)
+      def with_context(kind, &block)
+        node = NodeBuilder.build_variable(kind)
 
         context.execute_with(node) do
           block.call

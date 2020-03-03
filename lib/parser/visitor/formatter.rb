@@ -8,13 +8,13 @@ module JackCompiler
 
         def visit_variable(node)
           [
-            "Variable Node: #{node.type} | parent #{node.parent&.type || '<NO PARENT>'}",
+            "Variable Node: #{node.kind} | parent #{node.parent&.kind || '<NO PARENT>'}",
             *node.children.flat_map { |child| child.accept(SimpleFormatter) }.map { |format| "  " + format }
           ]
         end
 
         def visit_terminal(node)
-          "Terminal Node: #{node.type} <#{node.value}> | parent #{node.parent&.type || '<NO PARENT>'}"
+          "Terminal Node: #{node.kind} <#{node.value}> | parent #{node.parent&.kind || '<NO PARENT>'}"
         end
       end
     end
@@ -27,32 +27,32 @@ module JackCompiler
 
         def visit_variable(node)
           [
-            "<#{node.type}>",
+            "<#{node.kind}>",
             *node.children.flat_map { |child| child.accept(XMLFormatter) }.map { |child| "  #{child}" },
-            "</#{node.type}>"
+            "</#{node.kind}>"
           ]
         end
 
         def visit_terminal(node)
-          "<#{type_for_xml(node)}> #{value_for_xml(node)} </#{type_for_xml(node)}>"
+          "<#{kind_for_xml(node)}> #{value_for_xml(node)} </#{kind_for_xml(node)}>"
         end
 
         def value_for_xml(node)
-          if node.type == :string
+          if node.kind == :string
             node.value.to_s.gsub(/\A"(.+)"\z/, '\1').encode(xml: :text)
           else
             node.value.to_s.encode(xml: :text)
           end
         end
 
-        def type_for_xml(node)
-          case node.type
+        def kind_for_xml(node)
+          case node.kind
           when :string
             :stringConstant
           when :integer
             :integerConstant
           else
-            node.type
+            node.kind
           end
         end
       end

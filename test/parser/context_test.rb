@@ -34,7 +34,7 @@ module JackCompiler
       end
 
       def test_link
-        parent_node  = JackCompiler::Parser::Node::Variable.new(:foo_type)
+        parent_node  = JackCompiler::Parser::Node::Variable.new(:foo_kind)
         first_child  = JackCompiler::Parser::Node::Variable.new(:child1)
         second_child = JackCompiler::Parser::Node::Terminal.new(:child2, 123, source_location: :fake_location)
 
@@ -50,7 +50,7 @@ module JackCompiler
       end
 
       def test_execute_with
-        parent_node = JackCompiler::Parser::Node::Variable.new(:foo_type)
+        parent_node = JackCompiler::Parser::Node::Variable.new(:foo_kind)
         child_node  = JackCompiler::Parser::Node::Variable.new(:child)
         grand_child = JackCompiler::Parser::Node::Variable.new(:grand_child)
 

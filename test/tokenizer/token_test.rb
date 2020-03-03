@@ -3,15 +3,15 @@ require 'test_helper'
 module JackCompiler
   module Tokenizer
     module TokenTestHelper
-      def self.initialize_with_input(type, value, source_location: "123", &block)
-        token = JackCompiler::Tokenizer::Token.new(type, value, source_location: source_location)
+      def self.initialize_with_input(kind, value, source_location: "123", &block)
+        token = JackCompiler::Tokenizer::Token.new(kind, value, source_location: source_location)
 
         block.call token
       end
     end
 
     class TestTokenizerToken < Minitest::Test
-      def test_nil_type
+      def test_nil_kind
         TokenTestHelper.initialize_with_input(
           nil, '   '
         ) do |token|
@@ -19,7 +19,7 @@ module JackCompiler
         end
       end
 
-      def test_undefined_token_types
+      def test_undefined_token_kinds
         TokenTestHelper.initialize_with_input(
           :undefined, '1_foo'
         ) do |token|
@@ -47,18 +47,18 @@ module JackCompiler
           string:     '文字列　表現',
         }
 
-        classified_tokens.each do |type, value|
+        classified_tokens.each do |kind, value|
           TokenTestHelper.initialize_with_input(
-            type, value, source_location: '54321'
+            kind, value, source_location: '54321'
           ) do |token|
-            assert_equal type,    token.type
+            assert_equal kind,    token.kind
             assert_equal value,   token.value
             assert_equal '54321', token.source_location
           end
         end
       end
 
-      def test_type_query_methods
+      def test_kind_query_methods
         query_methods = {
           keyword:    :keyword?,
           symbol:     :symbol?,
@@ -75,12 +75,12 @@ module JackCompiler
           string:     '文字列　表現',
         }
 
-        classified_tokens.each do |type, value|
+        classified_tokens.each do |kind, value|
         TokenTestHelper.initialize_with_input(
-            type, value
+            kind, value
           ) do |token|
-            query_methods.each do |typename, query|
-              if typename == type
+            query_methods.each do |kindname, query|
+              if kindname == kind
                 assert token.public_send query
               else
                 refute token.public_send query
@@ -103,9 +103,9 @@ module JackCompiler
           multiline_comment_closer: 'foo bar*/',
         }
 
-        classified_tokens.each do |type, value|
+        classified_tokens.each do |kind, value|
           TokenTestHelper.initialize_with_input(
-            type, value
+            kind, value
           ) do |token|
             assert token.validate!
           end
@@ -124,20 +124,20 @@ module JackCompiler
           string:     '文字列　表現',
         }
 
-        reserved_tokens.each do |type, value|
+        reserved_tokens.each do |kind, value|
           TokenTestHelper.initialize_with_input(
-            type, value
+            kind, value
           ) do |token|
             assert token.is? value
-            refute token.is? type
+            refute token.is? kind
           end
         end
 
-        general_tokens.each do |type, value|
+        general_tokens.each do |kind, value|
           TokenTestHelper.initialize_with_input(
-            type, value
+            kind, value
           ) do |token|
-            assert token.is? type
+            assert token.is? kind
             refute token.is? value
           end
         end

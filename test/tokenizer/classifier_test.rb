@@ -4,13 +4,13 @@ module JackCompiler
   module Tokenizer
     module TokenClassifierTestHelper
       def self.match(token, &block)
-        token_type, value = JackCompiler::Tokenizer::TokenClassifier.match(token)
-        block.call token_type, value
+        token_kind, value = JackCompiler::Tokenizer::TokenClassifier.match(token)
+        block.call token_kind, value
       end
 
       def self.match_multiline_comment(token, &block)
-        token_type, value = JackCompiler::Tokenizer::TokenClassifier.match_multiline_comment(token)
-        block.call token_type, value
+        token_kind, value = JackCompiler::Tokenizer::TokenClassifier.match_multiline_comment(token)
+        block.call token_kind, value
       end
     end
   
@@ -18,8 +18,8 @@ module JackCompiler
       def test_blank_command
         TokenClassifierTestHelper.match(
           "   ",
-        ) do |type, value|
-          assert_equal :space, type
+        ) do |kind, value|
+          assert_equal :space, kind
           assert_equal "   ", value
         end
       end
@@ -27,8 +27,8 @@ module JackCompiler
       def test_singleline_comment
         TokenClassifierTestHelper.match(
           "// one-liner comment",
-        ) do |type, value|
-          assert_equal :singleline_comment, type
+        ) do |kind, value|
+          assert_equal :singleline_comment, kind
           assert_equal "// one-liner comment", value
         end
       end
@@ -46,35 +46,35 @@ module JackCompiler
 
         TokenClassifierTestHelper.match(
           comments[0]
-        ) do |type, value|
-          assert_equal :multiline_comment, type
+        ) do |kind, value|
+          assert_equal :multiline_comment, kind
           assert_equal '/*', value
         end
 
         1.upto(comments.size-2) do |i|
           TokenClassifierTestHelper.match_multiline_comment(
             comments[i]
-          ) do |type, value|
-            assert_equal :multiline_comment, type
+          ) do |kind, value|
+            assert_equal :multiline_comment, kind
             assert_equal comments[i], value
           end
         end
 
         TokenClassifierTestHelper.match_multiline_comment(
           comments[-1]
-        ) do |type, value|
-          assert_equal :multiline_comment_closer, type
+        ) do |kind, value|
+          assert_equal :multiline_comment_closer, kind
           assert_equal 'ends here */', value
         end
       end
   
-      def test_undefined_token_types
+      def test_undefined_token_kinds
         tokens = %w[classFoo function#bar 1st_var "abc xyz" "foo"123 Foo@rb bar$baz αβ \10000 #]
         tokens.each do |token|
         TokenClassifierTestHelper.match(
             token,
-          ) do |type, value|
-            assert_equal :undefined, type
+          ) do |kind, value|
+            assert_equal :undefined, kind
             assert_nil value
           end
         end
@@ -85,8 +85,8 @@ module JackCompiler
         keywords.each do |keyword|
         TokenClassifierTestHelper.match(
             "#{keyword} something",
-          ) do |type, value|
-            assert_equal :keyword, type
+          ) do |kind, value|
+            assert_equal :keyword, kind
             assert_equal keyword.to_sym, value
           end
         end
@@ -97,8 +97,8 @@ module JackCompiler
         symbols.each do |symbol|
         TokenClassifierTestHelper.match(
             "#{symbol}with-other-strings",
-          ) do |type, value|
-            assert_equal :symbol, type
+          ) do |kind, value|
+            assert_equal :symbol, kind
             assert_equal symbol.to_sym, value
           end
         end
@@ -109,8 +109,8 @@ module JackCompiler
         identifiers.each do |identifier|
         TokenClassifierTestHelper.match(
             "#{identifier}(foo)\n",
-          ) do |type, value|
-            assert_equal :identifier, type
+          ) do |kind, value|
+            assert_equal :identifier, kind
             assert_equal identifier.to_sym, value
           end
         end
@@ -121,8 +121,8 @@ module JackCompiler
         integers.each do |integer|
         TokenClassifierTestHelper.match(
             "#{integer}*foo+bar",
-          ) do |type, value|
-            assert_equal :integer, type
+          ) do |kind, value|
+            assert_equal :integer, kind
             assert_equal integer.to_i, value
           end
         end
@@ -133,8 +133,8 @@ module JackCompiler
         strings.each do |string|
         TokenClassifierTestHelper.match(
             "#{string},  abc, def",
-          ) do |type, value|
-            assert_equal :string, type
+          ) do |kind, value|
+            assert_equal :string, kind
             assert_equal string.to_s, value
           end
         end

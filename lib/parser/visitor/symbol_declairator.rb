@@ -11,43 +11,43 @@ module JackCompiler
         end
 
         def visit_variable(node)
-          if node.type == :subroutineDec
+          if node.kind == :subroutineDec
             @symbol_table.register_subroutine(
               node.child(2),
               kind:        node.child(0).value,
               return_type: node.child(1).value,
             )
-          elsif node.type == :classVarDec
+          elsif node.kind == :classVarDec
             kind     = node.child(0)
-            type     = node.child(1)
+            kind     = node.child(1)
             var_list = node.children[2..-1]
             var_list.each_slice(2) do |id, _sep|
               @symbol_table.register_variable(
                 id,
                 kind: kind,
-                type: type,
+                kind: kind,
                 scope: :class,
               )
             end
-          elsif node.type == :varDec
-            type     = node.child(1)
+          elsif node.kind == :varDec
+            kind     = node.child(1)
             var_list = node.children[2..-1]
             var_list.each_slice(2) do |id, _sep|
               @symbol_table.register_variable(
                 id,
                 kind: :local,
-                type: type,
+                kind: kind,
                 scope: node.scope,
               )
             end
-          elsif node.type == :parameterList
-            type     = node.child(0)
+          elsif node.kind == :parameterList
+            kind     = node.child(0)
             var_list = node.children[1..-1]
             var_list.each_slice(2) do |id, _sep|
               @symbol_table.register_variable(
                 id,
                 kind: :argument,
-                type: type,
+                kind: kind,
                 scope: node.scope,
               )
             end

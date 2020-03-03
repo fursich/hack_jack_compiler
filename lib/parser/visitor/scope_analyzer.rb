@@ -7,7 +7,7 @@ module JackCompiler
         end
 
         def visit_variable(node)
-          if node.type == :subroutineDec
+          if node.kind == :subroutineDec
             node.scope = node.child(2).value
           else
             node.scope = node.parent&.scope || :class

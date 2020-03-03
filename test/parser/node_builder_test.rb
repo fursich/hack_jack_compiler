@@ -4,9 +4,9 @@ module JackCompiler
   module Parser
     class TestParserNodeBuilder < Minitest::Test
       def test_build_variable
-        node = JackCompiler::Parser::NodeBuilder.build_variable(:foo_type)
+        node = JackCompiler::Parser::NodeBuilder.build_variable(:foo_kind)
         assert_instance_of JackCompiler::Parser::Node::Variable, node
-        assert_equal :foo_type, node.type
+        assert_equal :foo_kind, node.kind
         assert_empty node.children
       end
 
@@ -19,13 +19,13 @@ module JackCompiler
 
         node = JackCompiler::Parser::NodeBuilder.build_terminal(token)
         assert_instance_of JackCompiler::Parser::Node::Terminal, node
-        assert_equal token.type, node.type
+        assert_equal token.kind, node.kind
         assert_equal token.value, node.value
         assert_equal token.source_location, node.source_location
       end
 
       def test_register_as_terminal
-        parent_node = JackCompiler::Parser::NodeBuilder.build_variable(:foo_type)
+        parent_node = JackCompiler::Parser::NodeBuilder.build_variable(:foo_kind)
         context = JackCompiler::Parser::Context.new
         context.parents << parent_node
 
@@ -40,7 +40,7 @@ module JackCompiler
         node = parent_node.children.last
 
         assert_instance_of JackCompiler::Parser::Node::Terminal, node
-        assert_equal token.type, node.type
+        assert_equal token.kind, node.kind
         assert_equal token.value, node.value
         assert_equal token.source_location, node.source_location
       end

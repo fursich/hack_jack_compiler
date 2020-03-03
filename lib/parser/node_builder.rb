@@ -7,15 +7,15 @@ module JackCompiler
           context.link! node
         end
 
-        def build_variable(type)
+        def build_variable(kind)
           JackCompiler::Parser::Node::Variable.new(
-            type
+            kind
           )
         end
 
         def build_terminal(token)
           JackCompiler::Parser::Node::Terminal.new(
-            token.type,
+            token.kind,
             token.value,
             source_location: token.source_location,
           )
