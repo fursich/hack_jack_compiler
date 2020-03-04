@@ -28,17 +28,11 @@ module JackCompiler
       end
 
       def test_subtree_under_scope
-        sub = VisitorTestHelper.build_variable(:subroutineDec)
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :keyword, value: :function)
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :keyword, value: :void)
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :identifier, value: :loremipsum)
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :symbol, value: :'(')
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :keyword, value: :int)
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :identifier, value: :arg1)
-        VisitorTestHelper.append_child(sub, category: :terminal, kind: :symbol, value: :')')
-        VisitorTestHelper.append_child(sub, category: :variable, kind: :subroutineBody)
-
-        VisitorTestHelper.append_children(sub.children.last, 4, category: :variable, kind: :dummy)
+        sub = VisitorTestHelper.prepare_subroutine(
+          :loremipsum,
+          :function,
+          var1: :integer,
+        )
         root = VisitorTestHelper.build_variable(:class)
         root.push sub
 
