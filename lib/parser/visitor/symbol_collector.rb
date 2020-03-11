@@ -1,6 +1,6 @@
 module JackCompiler
   module Parser
-    class SymbolDeclairator
+    class SymbolCollector
       def initialize(symbol_table)
         @symbol_table = symbol_table
       end

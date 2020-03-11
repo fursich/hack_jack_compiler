@@ -2,7 +2,7 @@ require 'test_helper'
 
 module JackCompiler
   module Parser
-    class TestVisitorSymbolDeclairator < Minitest::Test
+    class TestVisitorSymbolCollector < Minitest::Test
       def test_irrelevant_nodes
         root = VisitorTestHelper.build_variable(:expression)
         VisitorTestHelper.build_descendants(root, count: 2, depth: 3, kind: :term, value: :foo)
@@ -10,7 +10,7 @@ module JackCompiler
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
         symbol_table = SymbolTable.new(:Klass)
-        JackCompiler::Parser::SymbolDeclairator.new(symbol_table).visit(root)
+        JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
         assert_empty symbol_table.subroutine_ids
         assert_empty symbol_table.variable_ids
       end
@@ -50,7 +50,7 @@ module JackCompiler
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
         symbol_table = SymbolTable.new(:Klass)
-        JackCompiler::Parser::SymbolDeclairator.new(symbol_table).visit(root)
+        JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
 
         assert_empty symbol_table.subroutine_ids
 
@@ -122,7 +122,7 @@ module JackCompiler
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
         symbol_table = SymbolTable.new(:Klass)
-        JackCompiler::Parser::SymbolDeclairator.new(symbol_table).visit(root)
+        JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
 
         assert_equal :method,  symbol_table.subroutine_ids[:loremipsum].kind
         assert_equal :integer, symbol_table.subroutine_ids[:loremipsum].return_type
@@ -182,7 +182,7 @@ module JackCompiler
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
         symbol_table = SymbolTable.new(:Klass)
-        JackCompiler::Parser::SymbolDeclairator.new(symbol_table).visit(root)
+        JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
 
         assert_equal :function, symbol_table.subroutine_ids[:loremipsum].kind
         assert_equal :void,   symbol_table.subroutine_ids[:loremipsum].return_type
