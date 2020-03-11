@@ -10,7 +10,11 @@ module JackCompiler
       end
 
       def visit_variable(node)
-        if node.kind == :subroutineDec
+        if node.kind == :class
+          @symbol_table.register_class(
+            node.child(1).value
+          )
+        elsif node.kind == :subroutineDec
           @symbol_table.register_subroutine(
             node.child(2).value,
             kind:        node.child(0).value,
@@ -41,7 +45,7 @@ module JackCompiler
           end
         elsif node.kind == :parameterList
           var_list = node.children[0..-1]
-          var_list.each_slice(2) do |type, id, _sep|
+          var_list.each_slice(3) do |type, id, _sep|
             @symbol_table.register_variable(
               id.value,
               kind: :argument,

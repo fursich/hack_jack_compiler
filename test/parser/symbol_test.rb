@@ -3,8 +3,13 @@ require 'test_helper'
 module JackCompiler
   module Parser
     module SymbolTableTestHelper
-      def self.with_new_table(class_name: :ClassName, &block)
-        symbol_table = JackCompiler::Parser::SymbolTable.new(class_name)
+      def self.with_new_table(class_name: nil, &block)
+        symbol_table = JackCompiler::Parser::SymbolTable.new
+        if class_name
+          symbol_table.instance_eval do
+            @class_name = class_name
+          end
+        end
 
         block.call symbol_table
       end
@@ -12,10 +17,20 @@ module JackCompiler
 
     class TestSymbolTable < Minitest::Test
       def test_initialize
-        SymbolTableTestHelper.with_new_table(class_name: :NewClass) do |table|
-          assert_equal :NewClass, table.class_name
-          assert_empty            table.subroutine_ids
-          assert_empty            table.variable_ids
+        SymbolTableTestHelper.with_new_table do |table|
+          assert_equal :Klass, table.class_name
+          assert_empty         table.subroutine_ids
+          assert_empty         table.variable_ids
+        end
+      end
+
+      def test_register_class
+        SymbolTableTestHelper.with_new_table do |table|
+          assert_equal :Klass, table.class_name # default
+
+          table.register_class(:FooBar)
+
+          assert_equal :FooBar, table.class_name # default
         end
       end
 

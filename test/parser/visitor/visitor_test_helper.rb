@@ -46,6 +46,15 @@ module JackCompiler
         end
       end
 
+      def self.prepare_class(class_name)
+        root = build_variable(:class)
+        append_child(root, category: :terminal, kind: :keyword,    value: :class)
+        append_child(root, category: :terminal, kind: :identifier, value: class_name)
+        append_child(root, category: :terminal, kind: :symbol,     value: :'{')
+
+        root
+      end
+
       def self.prepare_class_var_dec(kind, type, *vars)
         body = build_variable(:classVarDec)
         append_child(body, category: :terminal, kind: :keyword, value: kind)

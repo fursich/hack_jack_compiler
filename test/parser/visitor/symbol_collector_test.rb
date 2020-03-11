@@ -9,7 +9,7 @@ module JackCompiler
         JackCompiler::Parser::ParentConnector.new.visit(root)
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
-        symbol_table = SymbolTable.new(:Klass)
+        symbol_table = SymbolTable.new
         JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
         assert_empty symbol_table.subroutine_ids
         assert_empty symbol_table.variable_ids
@@ -49,7 +49,7 @@ module JackCompiler
         JackCompiler::Parser::ParentConnector.new.visit(root)
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
-        symbol_table = SymbolTable.new(:Klass)
+        symbol_table = SymbolTable.new
         JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
 
         assert_empty symbol_table.subroutine_ids
@@ -115,13 +115,13 @@ module JackCompiler
           var2: :String,
           var3: :boolean,
         )
-        root = VisitorTestHelper.build_variable(:class)
+        root = VisitorTestHelper.prepare_class(:Klass)
         root.push sub
 
         JackCompiler::Parser::ParentConnector.new.visit(root)
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
-        symbol_table = SymbolTable.new(:Klass)
+        symbol_table = SymbolTable.new
         JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
 
         assert_equal :method,  symbol_table.subroutine_ids[:loremipsum].kind
@@ -175,13 +175,13 @@ module JackCompiler
         sub.push dec1
         sub.push dec2
 
-        root = VisitorTestHelper.build_variable(:class)
+        root = VisitorTestHelper.prepare_class(:Klass)
         root.push sub
 
         JackCompiler::Parser::ParentConnector.new.visit(root)
         JackCompiler::Parser::ScopeAnalyzer.new.visit(root)
 
-        symbol_table = SymbolTable.new(:Klass)
+        symbol_table = SymbolTable.new
         JackCompiler::Parser::SymbolCollector.new(symbol_table).visit(root)
 
         assert_equal :function, symbol_table.subroutine_ids[:loremipsum].kind

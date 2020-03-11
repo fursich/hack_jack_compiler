@@ -6,12 +6,16 @@ module JackCompiler
       RoutineDesc  = Struct.new(:kind, :return_type,   keyword_init: true)
       VariableDesc = Struct.new(:kind, :type, :number, keyword_init: true)
 
-      attr_reader :class_name, :subroutine_ids, :variable_ids
+      attr_reader   :class_name, :subroutine_ids, :variable_ids
 
-      def initialize(class_name)
-        @class_name     = class_name
+      def initialize
+        @class_name     = :Klass # default
         @subroutine_ids = {}
         @variable_ids   = {}
+      end
+
+      def register_class(identifier)
+        @class_name = identifier
       end
 
       def register_subroutine(identifier, kind:, return_type:)
