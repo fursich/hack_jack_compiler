@@ -107,6 +107,23 @@ module JackCompiler
 
         body
       end
+
+      def self.prepare_simple_exp(kind, value)
+        exp = build_variable(:expression)
+        append_child(exp, category: :terminal, kind: kind, value: value)
+        exp
+      end
+
+      def self.prepare_parser(raw_source, filename: 'filename.jack')
+        source    = JackCompiler::Source.new(filename).tap { |source| source.store!(raw_source) }
+        tokenizer = JackCompiler::Tokenizer::Processor.new(source).tap(&:tokenize!)
+        JackCompiler::Parser::Processor.new(tokenizer.tokens)
+      end
+
+      def self.prepare_tree(raw_source, root_node:, filename: 'filename.jack')
+        parser = prepare_parser(raw_source, filename: filename)
+        parser.send "parse_#{root_node}"
+      end
     end
   end
 end
