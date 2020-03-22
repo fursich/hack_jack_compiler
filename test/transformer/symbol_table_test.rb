@@ -1,10 +1,10 @@
 require 'test_helper'
 
 module JackCompiler
-  module Parser
+  module Transformer
     module SymbolTableTestHelper
       def self.with_new_table(class_name: nil, &block)
-        symbol_table = JackCompiler::Parser::SymbolTable.new
+        symbol_table = JackCompiler::Transformer::SymbolTable.new
         if class_name
           symbol_table.instance_eval do
             @class_name = class_name

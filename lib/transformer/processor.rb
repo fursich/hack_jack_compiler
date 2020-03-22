@@ -1,4 +1,5 @@
 require_relative 'node_factory'
+require_relative 'symbol_table'
 require_relative 'nodes/nodes'
 require_relative 'visitor/visitor'
 
