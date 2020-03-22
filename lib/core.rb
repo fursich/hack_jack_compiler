@@ -1,6 +1,7 @@
 require_relative 'utils/source'
 require_relative 'tokenizer/processor'
 require_relative 'parser/processor'
+require_relative 'transformer/processor'
 
 module JackCompiler
   class Core
