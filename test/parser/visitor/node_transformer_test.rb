@@ -4,124 +4,92 @@ module JackCompiler
   module Parser
     class TestVisitorNodeTransformer < Minitest::Test
       class DummyFactory
-        attr_reader :kind, :options
-        def initialize(kind)
-          @kind = kind
+        attr_reader :state, :children
+
+        def initialize(node_type, kind: nil, value: nil)
+          @state = {node_type: node_type, kind: kind, value: value}.compact
         end
 
-        def build(**options)
-          @options = options
+        def build(*children)
+          @children = children
 
           self
         end
+
+        def kind
+          @state[:kind]
+        end
+
+        def value
+          @state[:value]
+        end
+
+        def aggregate
+          children_states =
+            if children.empty?
+              {}
+            else
+              { children: children.map(&:aggregate) }
+            end
+
+          { state: state }.merge children_states
+        end
       end
 
-      def xtest_class
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :class)
-          class Foo {
-            field int x, y;
-            field Array map;
+      def test_terminal
+        node = VisitorTestHelper.build_terminal(:symbol, :+)
+
+        factory = DummyFactory
+        root = JackCompiler::Parser::NodeTransformer.new(factory).visit(node)
+        expected_structure = {
+          state: {
+            node_type: :terminal,
+            kind: :symbol,
+            value: :'+'
           }
-        SOURCE
+        }
 
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(node)
-        binding.pry
+        assert_equal expected_structure, root.aggregate
       end
 
-      def xtest_noderoutine
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :subroutine_dec)
-          method int loremipsum(int arg1, bool arg2) {
-            var int var1, var2, var3;
-            let var1 = 1;
-          }
-        SOURCE
+      def test_variable_with_children
+        node = VisitorTestHelper.build_variable(:class)
+        VisitorTestHelper.append_child(node, category: :terminal, kind: :keyword,    value: :class)
+        VisitorTestHelper.append_child(node, category: :terminal, kind: :identifier, value: :FooClass)
+        VisitorTestHelper.append_child(node, category: :terminal, kind: :symbol,     value: :'{')
 
         factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(node)
-        binding.pry
-      end
+        root = JackCompiler::Parser::NodeTransformer.new(factory).visit(node)
+        expected_structure = {
+          state: {
+            node_type: :class,
+          },
+          children: [
+            {
+              state: {
+                node_type: :terminal,
+                kind: :keyword,
+                value: :class
+              }
+            },
+            {
+              state: {
+                node_type: :terminal,
+                kind: :identifier,
+                value: :FooClass
+              }
+            },
+            {
+              state: {
+                node_type: :terminal,
+                kind: :symbol,
+                value: :'{'
+              }
+            }
+          ]
+        }
 
-      def xtest_let_statement
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :let_statement)
-          let foo[bar * x + 2] = x;
-        SOURCE
-
-        statement = VisitorTestHelper.build_variable(:statement)
-        statement.push node
-
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(statement)
-        binding.pry
-      end
-
-      def xtest_if_statement
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :if_statement)
-          if(foo + bar = 10) {
-            let i[2] = t / 2;
-          }
-          else {
-            let i[0] = t * 2;
-          }
-        SOURCE
-
-        statement = VisitorTestHelper.build_variable(:statement)
-        statement.push node
-
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(statement)
-        binding.pry
-      end
-
-      def xtest_while_statement
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :while_statement)
-          while(foo < (bar / 10)) {
-            let i = i * 10;
-          }
-        SOURCE
-
-        statement = VisitorTestHelper.build_variable(:statement)
-        statement.push node
-
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(statement)
-        binding.pry
-      end
-
-      def xtest_do_statement
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :do_statement)
-          do foo.reverse();
-        SOURCE
-
-        statement = VisitorTestHelper.build_variable(:statement)
-        statement.push node
-
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(statement)
-        binding.pry
-      end
-
-      def xtest_return_statement
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :return_statement)
-          return this;
-        SOURCE
-
-        statement = VisitorTestHelper.build_variable(:statement)
-        statement.push node
-
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(statement)
-        binding.pry
-      end
-
-      def xtest_expression
-        node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :expression)
-          (1 + (foo * bar[12]) / 2 = baz(10)) & Foo.func("a random string") | ~( var0 < var1 ) & (var2 = var3) | false & true;
-        SOURCE
-
-        factory = DummyFactory
-        tree = JackCompiler::Parser::NodeTransformer.new(factory).visit(node)
-        binding.pry
+        assert_equal expected_structure, root.aggregate
       end
     end
   end
