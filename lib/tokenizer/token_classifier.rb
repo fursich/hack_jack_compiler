@@ -7,7 +7,8 @@ module JackCompiler
       Integer                       = /[0-9]+/
       String                        = /"[^"\n\r]*"/
       Spaces                        = /\s+/
-      Separator                     = Regexp.union(Spaces, Symbol)
+      Eol                           = /\z/
+      Separator                     = Regexp.union(Spaces, Symbol, Eol)
 
       KeywordMatcher                = /\A#{Keyword}(?=#{Separator})/
       SymbolMatcher                 = /\A#{Symbol}/
