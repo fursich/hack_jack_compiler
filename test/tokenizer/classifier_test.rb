@@ -69,7 +69,7 @@ module JackCompiler
       end
   
       def test_undefined_token_kinds
-        tokens = %w[classFoo function#bar 1st_var "abc xyz" "foo"123 Foo@rb bar$baz αβ \10000 #]
+        tokens = %w[function#bar 1st_var "abc xyz" "foo"123 Foo@rb bar$baz αβ \10000 #]
         tokens.each do |token|
         TokenClassifierTestHelper.match(
             token,
