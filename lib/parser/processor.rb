@@ -3,7 +3,6 @@ require_relative 'token_container'
 require_relative 'node_builder'
 require_relative 'nodes/node'
 require_relative 'visitor/visitor'
-require_relative 'symbol_table'
 
 module JackCompiler
   module Parser

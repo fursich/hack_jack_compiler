@@ -2,7 +2,7 @@ module JackCompiler
   module Parser
     module Node
       class Base
-        attr_accessor :parent, :scope
+        attr_reader :kind
 
         def initialize(kind)
           @kind = kind
@@ -14,7 +14,6 @@ module JackCompiler
 
         def_delegators :@children, :push, :pop
         attr_accessor :children
-        attr_reader :kind
 
         def initialize(kind)
           super
@@ -31,7 +30,7 @@ module JackCompiler
       end
 
       class Terminal < Base
-        attr_reader :kind, :value, :source_location
+        attr_reader :value, :source_location
 
         def initialize(kind, value, source_location:)
           super(kind)
