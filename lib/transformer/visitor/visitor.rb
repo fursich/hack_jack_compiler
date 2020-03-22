@@ -1,3 +1,5 @@
 require_relative 'parent_connector'
+require_relative 'scope_analyzer'
+require_relative 'scope_analyzer'
 require_relative 'node_extractor'
 require_relative 'formatter'
