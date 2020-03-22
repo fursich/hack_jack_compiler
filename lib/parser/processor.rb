@@ -200,9 +200,9 @@ module JackCompiler
           elsif accept_any(*%i[- ~])
             parse_term
           elsif current_token.is? :identifier
-            if next_token.is?(:'(') || next_token.is?(:'.')
+            if next_token&.is?(:'(') || next_token&.is?(:'.')
               parse_subroutine_call
-            elsif next_token.is? :'['
+            elsif next_token&.is? :'['
               expect!(:identifier)
               expect!(:'[')
               parse_expression
@@ -256,7 +256,7 @@ module JackCompiler
       private
 
       def accept(element)
-        if current_token.is? element
+        if current_token&.is? element
           token = @tokens.pop
           NodeBuilder.register_as_terminal token, context
           true
