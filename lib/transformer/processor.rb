@@ -6,7 +6,7 @@ require_relative 'visitor/visitor'
 module JackCompiler
   module Transformer
     class Processor
-      attr_reader :parse_tree, :factory, :ast
+      attr_reader :parse_tree, :factory, :symbol_table, :ast
 
       def initialize(parse_tree)
         @parse_tree = parse_tree
@@ -15,14 +15,19 @@ module JackCompiler
 
       def transform!
         @ast = JackCompiler::Parser::NodeTransformer.new(factory).visit(parse_tree)
-      end
-
-      def extract!
         JackCompiler::Transformer::NodeExtractor.new.visit(ast)
+        ast
       end
 
       def to_s
         JackCompiler::Transformer::SimpleFormatter.new.visit(ast)
+      end
+
+      def analyze_symbols
+        JackCompiler::Transformer::ParentConnector.new.visit(ast)
+        JackCompiler::Transformer::ScopeAnalyzer.new.visit(ast)
+        @symbol_table = SymbolTable.new
+        JackCompiler::Transformer::SymbolCollector.new(symbol_table).visit(ast)
       end
     end
   end
