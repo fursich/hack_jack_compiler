@@ -55,6 +55,8 @@ module JackCompiler
         registered_vars = symbol_table.variable_ids[:class]
 
         assert_equal 5, registered_vars.size
+        assert_equal 3, symbol_table.size_of(:static, scope: :class)
+        assert_equal 2, symbol_table.size_of(:field , scope: :class)
         assert_equal [:integer, :static, 0],
           [
             registered_vars[:var1].type,
@@ -108,6 +110,7 @@ module JackCompiler
         assert_equal [:loremipsum], symbol_table.variable_ids.keys
         registered_vars = symbol_table.variable_ids[:loremipsum]
         assert_equal 4, registered_vars.size
+        assert_equal 4, symbol_table.size_of(:argument, scope: :loremipsum)
         assert_equal [:Klass, :argument, 0],
           [
             registered_vars[:this].type,
@@ -152,6 +155,7 @@ module JackCompiler
         registered_vars = symbol_table.variable_ids[:foo_func]
 
         assert_equal 5, registered_vars.size
+        assert_equal 5, symbol_table.size_of(:local, scope: :foo_func)
         assert_equal [:integer, :local, 0],
           [
             registered_vars[:var1].type,

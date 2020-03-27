@@ -31,7 +31,7 @@ module JackCompiler
           VariableDesc.new(
             kind: kind,
             type: type,
-            number: count_variables(kind, scope: scope)
+            number: size_of(kind, scope: scope)
           )
       end
 
@@ -42,18 +42,18 @@ module JackCompiler
         lookup_scoped_variable(identifier, scope: scope)
       end
 
+      def size_of(kind, scope:)
+        raise unless variable_ids.has_key?(scope)
+
+        variable_ids[scope].count { |_id, var| var.kind == kind }
+      end
+
       private
 
       def lookup_scoped_variable(identifier, scope:)
         return unless variable_ids.has_key?(scope)
 
         variable_ids[scope][identifier]
-      end
-
-      def count_variables(kind, scope:)
-        raise unless variable_ids.has_key?(scope)
-
-        variable_ids[scope].count { |_id, var| var.kind == kind }
       end
     end
   end

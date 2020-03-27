@@ -46,6 +46,7 @@ module JackCompiler
 
           refute_nil   subroutine_desc
           refute_empty var_desc
+          assert_equal 1, table.size_of(:argument, scope: :constructor_name)
 
           assert_equal :constructor, subroutine_desc.kind
           assert_equal :class_name,  subroutine_desc.return_type
@@ -68,6 +69,7 @@ module JackCompiler
 
           refute_nil   subroutine_desc
           refute_empty var_desc
+          assert_equal 1, table.size_of(:argument, scope: :function_name)
 
           assert_equal :function,    subroutine_desc.kind
           assert_equal :boolean,     subroutine_desc.return_type
@@ -93,6 +95,7 @@ module JackCompiler
 
           assert_equal :method,      subroutine_desc.kind
           assert_equal :integer,     subroutine_desc.return_type
+          assert_equal 1, table.size_of(:argument, scope: :method_name)
 
           assert_equal [:this],      var_desc.keys
           assert_equal :argument,    var_desc[:this].kind
@@ -118,6 +121,7 @@ module JackCompiler
 
           var_desc               = table.variable_ids[:class]
           refute_empty           var_desc
+          assert_equal 1, table.size_of(:static, scope: :class)
 
           assert_equal [:bar],   var_desc.keys
           assert_equal :static,  var_desc[:bar].kind
@@ -133,6 +137,7 @@ module JackCompiler
 
           var_desc               = table.variable_ids[:class]
           refute_empty           var_desc
+          assert_equal 1, table.size_of(:field, scope: :class)
 
           assert_equal [:foo],   var_desc.keys
           assert_equal :field,   var_desc[:foo].kind
@@ -148,6 +153,8 @@ module JackCompiler
           assert_equal [:this],       var_desc.keys
 
           table.register_variable(:foo, kind: :local, type: :boolean, scope: :foo_func)
+          assert_equal 1, table.size_of(:argument, scope: :foo_func)
+          assert_equal 1, table.size_of(:local, scope: :foo_func)
 
           assert_equal [:this, :foo], var_desc.keys
           assert_equal :local,        var_desc[:foo].kind
@@ -163,6 +170,7 @@ module JackCompiler
           assert_equal [:this],       var_desc.keys
 
           table.register_variable(:foo, kind: :argument, type: :String, scope: :foo_method)
+          assert_equal 2, table.size_of(:argument, scope: :foo_method)
 
           assert_equal [:this, :foo], var_desc.keys
           assert_equal :argument,     var_desc[:foo].kind
@@ -231,6 +239,8 @@ module JackCompiler
           assert_nil table.lookup_variable(:charge,     scope: :class)
           assert_nil table.lookup_variable(:this,       scope: :class)
 
+          assert_equal 2, table.size_of(:static, scope: :class)
+          assert_equal 2, table.size_of(:field,  scope: :class)
           price     = table.lookup_variable(:price,     scope: :class)
           count     = table.lookup_variable(:count,     scope: :class)
           tax_rate  = table.lookup_variable(:tax_rate,  scope: :class)
@@ -271,6 +281,8 @@ module JackCompiler
 
           assert_nil table.lookup_variable(:charge,       scope: :foo)
 
+          assert_equal 3, table.size_of(:argument, scope: :foo)
+          assert_equal 1, table.size_of(:local,    scope: :foo)
           price      = table.lookup_variable(:price,      scope: :foo)
           tax_rate   = table.lookup_variable(:tax_rate,   scope: :foo)
           this       = table.lookup_variable(:this,       scope: :foo)
