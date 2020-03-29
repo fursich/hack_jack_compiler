@@ -29,6 +29,10 @@ module JackCompiler
         @symbol_table = SymbolTable.new
         JackCompiler::Transformer::SymbolCollector.new(symbol_table).visit(ast)
       end
+
+      def compile
+        JackCompiler::Transformer::Compiler.new(symbol_table).visit(ast)
+      end
     end
   end
 end
