@@ -45,15 +45,11 @@ module JackCompiler
           var_desc        = table.variable_ids[:constructor_name]
 
           refute_nil   subroutine_desc
-          refute_empty var_desc
-          assert_equal 1, table.size_of(:argument, scope: :constructor_name)
+          assert_empty var_desc
+          assert_equal 0, table.size_of(:argument, scope: :constructor_name)
 
           assert_equal :constructor, subroutine_desc.kind
           assert_equal :class_name,  subroutine_desc.return_type
-
-          assert_equal [:this],      var_desc.keys
-          assert_equal :argument,    var_desc[:this].kind
-          assert_equal :ClassName,   var_desc[:this].type
         end
       end
 
@@ -68,15 +64,11 @@ module JackCompiler
           var_desc        = table.variable_ids[:function_name]
 
           refute_nil   subroutine_desc
-          refute_empty var_desc
-          assert_equal 1, table.size_of(:argument, scope: :function_name)
+          assert_empty var_desc
+          assert_equal 0, table.size_of(:argument, scope: :function_name)
 
           assert_equal :function,    subroutine_desc.kind
           assert_equal :boolean,     subroutine_desc.return_type
-
-          assert_equal [:this],      var_desc.keys
-          assert_equal :argument,    var_desc[:this].kind
-          assert_equal :ClassName,   var_desc[:this].type
         end
       end
 
@@ -145,18 +137,37 @@ module JackCompiler
         end
       end
 
-      def test_variables_local
+      def test_variables_local_for_method
+        SymbolTableTestHelper.with_new_table do |table|
+          table.register_subroutine(:foo_method, kind: :method, return_type: :void)
+
+          var_desc                    = table.variable_ids[:foo_method]
+          assert_equal 0, table.size_of(:local, scope: :foo_method)
+          assert_equal [:this],       var_desc.keys
+
+          table.register_variable(:foo, kind: :local, type: :boolean, scope: :foo_method)
+
+          assert_equal 1, table.size_of(:local, scope: :foo_method)
+          assert_equal [:this, :foo], var_desc.keys
+
+          assert_equal :local,        var_desc[:foo].kind
+          assert_equal :boolean,      var_desc[:foo].type
+        end
+      end
+
+      def test_variables_argument_for_non_method
         SymbolTableTestHelper.with_new_table do |table|
           table.register_subroutine(:foo_func, kind: :function, return_type: :void)
 
           var_desc                    = table.variable_ids[:foo_func]
-          assert_equal [:this],       var_desc.keys
+          assert_equal 0, table.size_of(:local, scope: :foo_func)
+          assert_empty var_desc.keys
 
           table.register_variable(:foo, kind: :local, type: :boolean, scope: :foo_func)
-          assert_equal 1, table.size_of(:argument, scope: :foo_func)
-          assert_equal 1, table.size_of(:local, scope: :foo_func)
 
-          assert_equal [:this, :foo], var_desc.keys
+          assert_equal 1, table.size_of(:local, scope: :foo_func)
+          assert_equal [:foo], var_desc.keys
+
           assert_equal :local,        var_desc[:foo].kind
           assert_equal :boolean,      var_desc[:foo].type
         end
@@ -219,6 +230,39 @@ module JackCompiler
           assert_raises(RuntimeError) {
             table.register_variable(:total, kind: :local, type: :integer, scope: :foo)
           }
+        end
+      end
+
+      def test_lookup_subroutine
+        SymbolTableTestHelper.with_new_table do |table|
+          table.register_subroutine(:foo_method, kind: :method,      return_type: :String)
+          table.register_subroutine(:bar_method, kind: :method,      return_type: :Array)
+          table.register_subroutine(:foo_func,   kind: :function,    return_type: :void)
+          table.register_subroutine(:bar_func,   kind: :function,    return_type: :boolean)
+          table.register_subroutine(:new,        kind: :constructor, return_type: :integer)
+
+          subroutine = table.lookup_subroutine(:foo_method)
+          assert_equal :method, subroutine.kind
+          assert_equal :String, subroutine.return_type
+
+          subroutine = table.lookup_subroutine(:bar_method)
+          assert_equal :method, subroutine.kind
+          assert_equal :Array, subroutine.return_type
+
+          subroutine = table.lookup_subroutine(:foo_func)
+          assert_equal :function, subroutine.kind
+          assert_equal :void, subroutine.return_type
+
+          subroutine = table.lookup_subroutine(:bar_func)
+          assert_equal :function, subroutine.kind
+          assert_equal :boolean, subroutine.return_type
+
+          subroutine = table.lookup_subroutine(:new)
+          assert_equal :constructor, subroutine.kind
+          assert_equal :integer, subroutine.return_type
+
+          subroutine = table.lookup_subroutine(:non_existent)
+          assert_nil subroutine
         end
       end
 

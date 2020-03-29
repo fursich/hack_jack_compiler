@@ -20,13 +20,15 @@ module JackCompiler
         raise if subroutine_ids.has_key?(identifier)
 
         subroutine_ids[identifier] = RoutineDesc.new(kind: kind, return_type: return_type)
-        register_variable(:this, kind: :argument, type: class_name, scope: identifier)
+
+        initialize_variable_table_for(scope: identifier)
+        register_variable(:this, kind: :argument, type: class_name, scope: identifier) if kind == :method
       end
 
       def register_variable(identifier, kind:, type:, scope:)
         raise if lookup_variable(identifier, scope: scope)
 
-        variable_ids[scope] ||= {}
+        initialize_variable_table_for(scope: scope)
         variable_ids[scope][identifier] =
           VariableDesc.new(
             kind: kind,
@@ -42,6 +44,10 @@ module JackCompiler
         lookup_scoped_variable(identifier, scope: scope)
       end
 
+      def lookup_subroutine(scope)
+        subroutine_ids[scope]
+      end
+
       def size_of(kind, scope:)
         raise unless variable_ids.has_key?(scope)
 
@@ -54,6 +60,10 @@ module JackCompiler
         return unless variable_ids.has_key?(scope)
 
         variable_ids[scope][identifier]
+      end
+
+      def initialize_variable_table_for(scope:)
+        variable_ids[scope] ||= {}
       end
     end
   end

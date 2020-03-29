@@ -89,14 +89,8 @@ module JackCompiler
 
         # for .new
         registered_vars = table.variable_ids[:new]
-        assert_equal 2, registered_vars.size
-        assert_equal [:argument, :Bill, 0],
-          [
-            registered_vars[:this].kind,
-            registered_vars[:this].type,
-            registered_vars[:this].number,
-          ]
-        assert_equal [:argument, :String, 1],
+        assert_equal 1, registered_vars.size
+        assert_equal [:argument, :String, 0],
           [
             registered_vars[:name].kind,
             registered_vars[:name].type,
@@ -105,14 +99,8 @@ module JackCompiler
 
         # for .set_tax_rate
         registered_vars = table.variable_ids[:set_tax_rate]
-        assert_equal 2, registered_vars.size
-        assert_equal [:argument, :Bill, 0],
-          [
-            registered_vars[:this].kind,
-            registered_vars[:this].type,
-            registered_vars[:this].number,
-          ]
-        assert_equal [:argument, :integer, 1],
+        assert_equal 1, registered_vars.size
+        assert_equal [:argument, :integer, 0],
           [
             registered_vars[:rate].kind,
             registered_vars[:rate].type,
