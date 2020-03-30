@@ -15,8 +15,9 @@ module JackCompiler
   class Driver
     attr_reader :sources
 
-    def initialize(path, debug: false)
+    def initialize(path, output: :vm, debug: false)
       @debug        = debug
+      @output       = output # either :xml (as parse tree) or :vm (compiled)
 
       expand_filenames!(path)
       @raw_sources   = retrive_sources
@@ -25,12 +26,18 @@ module JackCompiler
     def run
       @compiled_codes = []
       @raw_sources.each do |filename, raw_source|
-        compiled_code = JackCompiler::Core.new(raw_source, filename: filename, debug: @debug).tap(&:process)
-        # TODO (currently outputs intermediate parse tree)
-        @compiled_codes << compiled_code.to_xml
-        output_filename = filename.sub_ext('.xml')
+        compiler_core = JackCompiler::Core.new(raw_source, filename: filename, debug: @debug).tap(&:process)
 
-        write_file(compiled_code.to_xml, filename: output_filename)
+        case @output
+        when :vm
+          @compiled_codes << compiler_core.transformer.print
+          output_filename = filename.sub_ext('.vm')
+        when :xml
+          @compiled_codes << compiler_core.parser.to_xml
+          output_filename = filename.sub_ext('.xml')
+        end
+
+        write_file(@compiled_codes.last, filename: output_filename)
       end
     end
 

@@ -10,15 +10,10 @@ end
 
 task :default => :test
 
-task :parse, [:filename] do |_task, args|
-  raw_source = JackCompiler::FileIO.new(args.filename).read
-  source     = JackCompiler::Source.new(args.filename).tap { |source| source.store!(raw_source) }
-  tokenizer  = JackCompiler::Tokenizer::Processor.new(source).tap(&:tokenize!)
-  parser     = JackCompiler::Parser::Processor.new(tokenizer.tokens).tap(&:parse!)
-  parser.print
+task :run, [:filename] do |_task, args|
+  JackCompiler::Driver.new(args.filename, output: :vm).run
 end
 
-# TO BE IMPLEMENTED
-# task :run, [:filename] do |_task, args|
-#   VMTranslator::Driver.new(args.filename).run
-# end
+task :parse, [:filename] do |_task, args|
+  JackCompiler::Driver.new(args.filename, output: :xml).run
+end

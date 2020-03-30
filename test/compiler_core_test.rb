@@ -6,7 +6,8 @@ module JackCompiler
       raw_source = FileIO.new(Pathname('test/fixtures').join(source_file)).read
       target_xml = FileIO.new(Pathname('test/fixtures').join(assertion_file)).read
 
-      parser = JackCompiler::Core.new(raw_source, filename: source_file, debug: false).process
+      compiler_core = JackCompiler::Core.new(raw_source, filename: source_file, debug: false).process
+      parser = compiler_core.parser
       assert_equal target_xml, parser.to_xml
     end
   end
