@@ -41,7 +41,7 @@ module JackCompiler
           end
         elsif node.kind == :parameterList
           parameters = node.parameters
-          parameters.each do |type, var_name|
+          parameters.each do |var_name, type|
             @symbol_table.register_variable(
               var_name,
               kind: :argument,

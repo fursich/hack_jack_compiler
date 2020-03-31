@@ -56,16 +56,16 @@ module JackCompiler
 
       def test_parameter_list
         node = VisitorTestHelper.prepare_tree(<<~SOURCE, root_node: :parameter_list)
-          int foo, boolean bar, Array baz
+          integer foo, boolean bar, Array baz
         SOURCE
 
         tree = JackCompiler::Parser::NodeTransformer.new(NodeFactory).visit(node)
         JackCompiler::Transformer::NodeExtractor.new.visit(tree)
 
         parameters = {
-          int:     :foo,
-          boolean: :bar,
-          Array:   :baz
+          foo: :integer,
+          bar: :boolean,
+          baz: :Array,
         }
         assert_equal parameters, tree.parameters
       end

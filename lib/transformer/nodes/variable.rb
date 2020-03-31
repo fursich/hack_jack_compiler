@@ -44,8 +44,11 @@ module JackCompiler
         attr_reader :parameters
 
         def extract_nodes!
-          types_and_varnames = extract_children(0, kind: [:keyword, :identifier])
-          @parameters = types_and_varnames.map(&:value).each_slice(2).to_h # { type => var_name, .. }
+          types_and_varnames = extract_children(0, kind: [:keyword, :identifier]).map(&:value)
+          @parameters =
+            types_and_varnames.
+            each_slice(2).
+            inject({}) { |hash, (type, var)| hash.merge(var => type) } # { var_name => type, .. }
         end
       end
 

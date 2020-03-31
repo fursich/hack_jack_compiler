@@ -90,9 +90,9 @@ module JackCompiler
       def test_subroutine
         param = DummyNode.new(:parameterList, scope: :loremipsum, descendants: [])
         param.parameters = {
-          integer: :foo,
-          Array:   :bar,
-          boolean: :baz,
+          foo: :integer,
+          bar: :Array,
+          baz: :boolean,
         }
         node = DummyNode.new(:subroutineDec, scope: :class, descendants: [param])
         node.subroutine_name = :loremipsum
