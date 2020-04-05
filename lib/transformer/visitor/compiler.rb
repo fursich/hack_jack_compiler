@@ -29,7 +29,7 @@ module JackCompiler
         '+': :add,
         '-': :sub,
         '*': :'call Math.multiply 2',
-        '/': :'call Math.devide 2',
+        '/': :'call Math.divide 2',
         '&': :and,
         '|': :or,
         '>': :gt,
@@ -50,26 +50,26 @@ module JackCompiler
             case subroutine.kind
             when :constructor
               field_size = @symbol_table.size_of(:field, scope: :class)
-              <<~VMCODE
+              <<~VMCODE.split("\n")
                 function #{@symbol_table.class_name}.#{node.subroutine_name} #{local_var_count}
                 push constant #{field_size}
                 call Memory.alloc 1
                 pop pointer 0
               VMCODE
             when :method
-              <<~VMCODE
+              <<~VMCODE.split("\n")
                 function #{@symbol_table.class_name}.#{node.subroutine_name} #{local_var_count}
                 push argument 0
                 pop pointer 0
               VMCODE
             when :function
-              <<~VMCODE
+              <<~VMCODE.split("\n")
                 function #{@symbol_table.class_name}.#{node.subroutine_name} #{local_var_count}
               VMCODE
             end
           [
-            *sentences.split("\n"),
-            *statements
+            *sentences,
+            *statements,
           ]
         when :subroutineBody
           node.statements.flat_map {|sub_node| sub_node.accept(self) }
@@ -88,7 +88,7 @@ module JackCompiler
           @label.increment!
           [
             *condition,
-            "if_goto #{@label.for(:if)}",
+            "if-goto #{@label.for(:if)}",
             *else_statements,
             "goto #{@label.for(:if_end)}",
             "label #{@label.for(:if)}",
@@ -102,7 +102,7 @@ module JackCompiler
           @label.increment!
           [
             *condition,
-            "if_goto #{@label.for(:while)}",
+            "if-goto #{@label.for(:while)}",
             "goto #{@label.for(:while_end)}",
             "label #{@label.for(:while)}",
             *while_statements,
@@ -221,33 +221,30 @@ module JackCompiler
 
           if node.index
             index = node.index.accept(self)
-
-            <<~VMCODE.split("\n")
-              #{index}
+            accessor = <<~VMCODE.split("\n")
               push #{accessor} #{var.number}
               add
               pop pointer 1
               #{method} that 0
             VMCODE
+
+            [*index, *accessor]
           else
             ["#{method} #{accessor} #{var.number}"]
           end
         when :integer
           "push constant #{node.value}"
         when :string
-          # use this for the base address, so that it can be preserved during the following function calls
+          # note: always end with pushing pointer to the generated string onto the stack,
+          # so that the following call can utilize it.
           build_string = <<~VMCODE.split("\n")
             push constant #{node.value.size}
             call String.new 1
-            pop pointer 0
           VMCODE
-          set_chars = node.value.each_char.map.with_index { |c, i|
+          set_chars = node.value.each_codepoint.map { |c|
             <<~VMCODE.split("\n")
-              pop pointer 0
-              push constant #{i}
               push constant #{c}
-              call setChatAt 3
-              pop temp 0
+              call String.appendChar 2
             VMCODE
           }
           [

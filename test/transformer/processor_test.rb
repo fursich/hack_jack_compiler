@@ -249,7 +249,7 @@ module JackCompiler
           push argument 1
           push local 0
           call List.has_order 2
-          if_goto label1.while
+          if-goto label1.while
           goto label1.while_end
           label label1.while
           push argument 1
@@ -281,7 +281,7 @@ module JackCompiler
           push local 0
           push constant 0
           eq
-          if_goto label2.if
+          if-goto label2.if
           push constant 1
           neg
           return
@@ -301,7 +301,7 @@ module JackCompiler
           call Math.to_float 1
           push constant 100
           call Math.to_float 1
-          call Math.devide 2
+          call Math.divide 2
           pop local 0
           push local 0
           call Math.floor 1
