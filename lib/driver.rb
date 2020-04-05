@@ -59,7 +59,7 @@ module JackCompiler
 
     def expand_filenames!(path)
       unless path && File.exist?(path)
-        raise FileError, 'please specify valid path of a *.jack file, or a directory including *.jack file(s))'
+        raise FileError, "No such file found: #{path}\nplease specify valid path of a *.jack file, or a directory including *.jack file(s))"
       end
 
       pathname = Pathname.new(path)
@@ -68,7 +68,7 @@ module JackCompiler
         @compilation_mode = :integrated
         @input_filenames = pathname.glob('*.jack')
 
-        validate_file_structure_with_integrated_mode!
+        validate_file_structure_with_integrated_mode!(pathname)
       else
         @compilation_mode = :single_file
         raise FileError, 'illegal file type' if pathname.extname != '.jack'
@@ -76,11 +76,11 @@ module JackCompiler
       end
     end
 
-    def validate_file_structure_with_integrated_mode!
+    def validate_file_structure_with_integrated_mode!(pathname)
       return unless @compilation_mode == :integrated
 
-      raise FileError, 'no file file(s) found in the directory' if @input_filenames.empty?
-      raise FileError, 'cannot find Main.jack in the directory' unless @input_filenames.map{ |file| file.basename.to_s }.one?('Main.jack')
+      raise FileError, "no file(s) found in the directory: #{pathname}" if @input_filenames.empty?
+      raise FileError, "cannot find Main.jack in the directory: #{pathname}" unless @input_filenames.map{ |file| file.basename.to_s }.one?('Main.jack')
     end
   end
 end
