@@ -135,7 +135,7 @@ module JackCompiler
             "#{string},  abc, def",
           ) do |kind, value|
             assert_equal :string, kind
-            assert_equal string.to_s, value
+            assert_equal string.tr('"',''), value
           end
         end
       end

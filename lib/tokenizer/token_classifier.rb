@@ -5,7 +5,7 @@ module JackCompiler
       Symbol                        = /[{}()\[\].,;+\-*\/&|<>=~]/
       Identifier                    = /[a-zA-Z_][0-9a-zA-Z_]*/
       Integer                       = /[0-9]+/
-      String                        = /"[^"\n\r]*"/
+      String                        = /"([^"\n\r]*)"/
       Spaces                        = /\s+/
       Eol                           = /\z/
       Separator                     = Regexp.union(Spaces, Symbol, Eol)
@@ -41,7 +41,7 @@ module JackCompiler
         when IntegerMatcher
           [:integer,                  Integer($&)]
         when StringMatcher
-          [:string,                   $&.to_s]
+          [:string,                   $1.to_s] # strip \" from both ends
 
         else
           [:undefined,                nil]

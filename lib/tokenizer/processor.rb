@@ -18,7 +18,7 @@ module JackCompiler
             token = generate_token(code, last_kind: token&.kind, source_location: source.location).tap(&:validate!)
 
             @tokens << token unless token.ignorable?
-            delete!(token.value, from: code)
+            delete!(token, from: code)
           end
         end
       end
@@ -29,8 +29,16 @@ module JackCompiler
 
       private
 
-      def delete!(element, from:)
-        from.delete_prefix!(element.to_s)
+      def delete!(token, from:)
+        element =
+          if token.kind == :string
+            "\"#{token.value}\"" # for string, \" should be included in both ends
+          else
+            token.value.to_s
+          end
+
+        raise UndefinedTokenPattern, "(Internal Error) failed to tokenize #{from} : #{source.location}" unless from.start_with? element
+        from.delete_prefix!(element)
       end
 
       def generate_token(raw_text, last_kind:, source_location:)

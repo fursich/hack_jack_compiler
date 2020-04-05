@@ -35,11 +35,7 @@ module JackCompiler
       end
 
       def value_for_xml(node)
-        if node.kind == :string
-          node.value.to_s.gsub(/\A"(.+)"\z/, '\1').encode(xml: :text)
-        else
-          node.value.to_s.encode(xml: :text)
-        end
+        node.value.to_s.encode(xml: :text)
       end
 
       def kind_for_xml(node)
