@@ -101,11 +101,13 @@ module JackCompiler
 
           @label.increment!
           [
+            "label #{@label.for(:while_start)}",
             *condition,
             "if-goto #{@label.for(:while)}",
             "goto #{@label.for(:while_end)}",
             "label #{@label.for(:while)}",
             *while_statements,
+            "goto #{@label.for(:while_start)}",
             "label #{@label.for(:while_end)}",
           ]
         when :doStatement

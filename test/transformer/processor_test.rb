@@ -246,6 +246,7 @@ module JackCompiler
           pop pointer 0
           push constant 0
           pop local 0
+          label label1.while_start
           push argument 1
           push local 0
           call List.has_order 2
@@ -277,6 +278,7 @@ module JackCompiler
           push constant 1
           add
           pop local 0
+          goto label1.while_start
           label label1.while_end
           push local 0
           push constant 0
