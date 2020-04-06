@@ -15,6 +15,7 @@ module JackCompiler
       def initialize(tokens)
         @tokens    = TokenContainer.new(tokens)
         @context   = Context.new
+        @location  = current_token&.source_location
       end
 
       def parse!
@@ -26,8 +27,12 @@ module JackCompiler
           expect!(:class)
           expect!(:identifier)
           expect!(:'{')
-          while try { parse_class_var_dec }; end
-          while try { parse_subroutine_dec }; end
+          while current_token_is_a?(:static, :field)
+            parse_class_var_dec
+          end
+          while current_token_is_a?(:constructor, :function, :method)
+            parse_subroutine_dec
+          end
           expect!(:'}')
 
           return context.current_parent
@@ -64,7 +69,8 @@ module JackCompiler
 
       def parse_parameter_list
         with_context(:parameterList) do
-          if try { parse_type }
+          if current_token_is_a?(:int, :char, :boolean, :identifier)
+            parse_type
             expect!(:identifier)
             while accept(:',')
               parse_type
@@ -77,7 +83,9 @@ module JackCompiler
       def parse_subroutine_body
         with_context(:subroutineBody) do
           expect!(:'{')
-          while try { parse_var_dec }; end
+          while current_token_is_a?(:var)
+            parse_var_dec
+          end
           parse_statements
           expect!(:'}')
         end
@@ -97,19 +105,22 @@ module JackCompiler
 
       def parse_statements
         with_context(:statements) do
-          while try { parse_statement }; end
+          while true
+            if current_token&.is?(:let)
+              parse_let_statement
+            elsif current_token&.is?(:if)
+              parse_if_statement
+            elsif current_token&.is?(:while)
+              parse_while_statement
+            elsif current_token&.is?(:do)
+              parse_do_statement
+            elsif current_token&.is?(:return)
+              parse_return_statement
+            else
+              break
+            end
+          end
         end
-      end
-
-      # no need for new context
-      def parse_statement
-        expect_any_method_succeeds!(
-          :parse_let_statement,
-          :parse_if_statement,
-          :parse_while_statement,
-          :parse_do_statement,
-          :parse_return_statement
-        )
       end
 
       def parse_let_statement
@@ -173,7 +184,9 @@ module JackCompiler
         with_context(:returnStatement) do
           expect!(:return)
 
-          try { parse_expression }
+          if !current_token_is_a?(:';')
+            parse_expression
+          end
           expect!(:';')
         end
       end
@@ -210,7 +223,7 @@ module JackCompiler
               expect!(:identifier)
             end
           else
-            raise SyntaxError, "syntax error: #{fetch_source_location}"
+            raise SyntaxError, "syntax error: #{@location}"
           end
         end
       end
@@ -229,9 +242,11 @@ module JackCompiler
 
       def parse_expression_list
         with_context(:expressionList) do
-          try { parse_expression }
-          while accept(:',')
+          unless current_token_is_a?(:')')
             parse_expression
+            while accept(:',')
+              parse_expression
+            end
           end
         end
       end
@@ -255,6 +270,8 @@ module JackCompiler
       private
 
       def accept(element)
+        @location = current_token&.source_location || @location
+
         if current_token&.is? element
           token = @tokens.pop
           NodeBuilder.register_as_terminal token, context
@@ -272,7 +289,7 @@ module JackCompiler
         unless accept_any(*elements)
           caller_location = caller.join("\n")
 
-          raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting #{elements}: \n\n  #{fetch_source_location}\n\n#{caller_location}"
+          raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting: #{elements.map(&:to_s).join(', or ')}\n\n  #{@location}\n\n#{caller_location}"
         end
         true
       end
@@ -284,14 +301,8 @@ module JackCompiler
         false
       end
 
-      def expect_any_method_succeeds!(*method_names)
-        method_names.each do |method|
-          return true if try { self.send method }
-        end
-
-        caller_location = caller.join("\n")
-
-        raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting #{method_names}: #{fetch_source_location}\n\n#{caller_location}"
+      def current_token_is_a?(*elements)
+        elements.any? { |element| current_token&.is?(element) }
       end
 
       def with_context(kind, &block)
@@ -300,16 +311,6 @@ module JackCompiler
         context.execute_with(node) do
           block.call
         end
-      end
-
-      def fetch_source_location
-        while current_token
-          location = nil
-          return location if try { location = current_token.source_location }
-          @tokens.pop
-        end
-
-        '[INTERNAL ERROR] could not locate the source location'
       end
     end
   end
