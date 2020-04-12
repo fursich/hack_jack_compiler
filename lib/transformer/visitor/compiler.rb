@@ -205,7 +205,7 @@ module JackCompiler
           ]
         when :variableAccess
           var = @symbol_table.lookup_variable(node.name, scope: node.scope)
-          raise unless var # XXX undefined variable
+          raise RuntimeError, "ERROR: undifined variable: #{node.name} found" unless var # XXX undefined variable
 
           accessor =
             if var.kind == :field
