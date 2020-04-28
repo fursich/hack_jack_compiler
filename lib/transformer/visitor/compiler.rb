@@ -179,7 +179,7 @@ module JackCompiler
             end
           else
             # must be a method
-            raise unless @symbol_table.lookup_subroutine(node.subroutine_name)
+            raise RuntimeError, "\nERROR: undefined method: #{node.subroutine_name}\n\n" unless @symbol_table.lookup_subroutine(node.subroutine_name)
 
             receiver      = @symbol_table.class_name
             caller_object = 'push pointer 0'

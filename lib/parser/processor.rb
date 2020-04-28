@@ -288,7 +288,6 @@ module JackCompiler
       def expect!(*elements)
         unless accept_any(*elements)
           caller_location = caller.join("\n")
-
           raise SyntaxError, "\nunexpected token #{current_token.value} detected, while expecting: #{elements.map(&:to_s).join(', or ')}\n\n  #{@location}\n\n#{caller_location}"
         end
         true
